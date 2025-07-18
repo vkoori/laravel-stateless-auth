@@ -7,8 +7,8 @@ class NotSupportedException extends BaseGuardException
     public function __construct()
     {
         parent::__construct(
-            self::NOT_SUPPORT,
-            "This method is not supported."
+            "This method is not supported.",
+            self::NOT_SUPPORT
         );
     }
 }

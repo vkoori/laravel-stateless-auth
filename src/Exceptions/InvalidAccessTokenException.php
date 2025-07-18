@@ -7,8 +7,8 @@ class InvalidAccessTokenException extends BaseGuardException
     public function __construct()
     {
         parent::__construct(
-            self::INVALID_ACCESS_TOKEN,
-            "Your access token is not valid."
+            "Your access token is not valid.",
+            self::INVALID_ACCESS_TOKEN
         );
     }
 }
