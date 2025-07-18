@@ -1,6 +1,6 @@
 <?php
 
-namespace Vkoori\JwtAuth\Providers;
+namespace Vkoori\JwtAuth;
 
 use Illuminate\Support\Str;
 use Illuminate\Routing\Router;

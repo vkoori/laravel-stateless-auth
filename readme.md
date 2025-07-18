@@ -28,7 +28,7 @@ composer require vkoori/laravel-stateless-auth
 Publish the config file:
 
 ```bash
-php artisan vendor:publish --provider="Vkoori\JwtAuth\Providers\AuthServiceProvider" --tag=config
+php artisan vendor:publish --provider="Vkoori\JwtAuth\AuthServiceProvider" --tag=jwt-guard
 ```
 
 This will publish `config/jwt-guard.php`.
