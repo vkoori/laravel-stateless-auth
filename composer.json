@@ -25,6 +25,13 @@
             "Vkoori\\JwtAuth\\": "src/"
         }
     },
+    "extra": {
+      "laravel": {
+        "providers": [
+          "Vkoori\\JwtAuth\\AuthServiceProvider"
+        ]
+      }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
