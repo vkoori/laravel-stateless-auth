@@ -20,7 +20,8 @@ Supports access/refresh tokens, automatic cookie injection, multi-source token p
 ## 📦 Installation
 
 ```bash
-composer require vkoori/jwt-auth
+composer require vkoori/laravel-stateless-auth
+```
 
 ## ⚙️ Configuration
 
