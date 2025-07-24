@@ -14,6 +14,28 @@ trait HasApiTokens
 {
     use JwtCacheTrait;
 
+    public function revokeToken(string $token)
+    {
+        $tokenData = Jwt::verify($token);
+
+        if (is_null($this->getAuthIdentifier())) {
+            $identity = $this->findOrFail($tokenData['sub']);
+            $this->attributes = $identity->getAttributes();
+            $this->original = $identity->getOriginal();
+        }
+
+        if ($this->getAuthIdentifier() != $tokenData['sub']) {
+            throw new InvalidIdentifierException();
+        }
+
+        if (!config('jwt-guard.jwt.enable_revoke')) {
+            return false;
+        }
+
+        $this->revokeOne($tokenData['sub'], $tokenData['jti']);
+        return true;
+    }
+
     public function revokeAllTokens()
     {
         if (
@@ -52,10 +74,13 @@ trait HasApiTokens
         return $this->jwtResult($accessToken, $refreshToken, $config);
     }
 
-    public function refreshToken(
-        string $refreshToken
-    ) {
+    public function refreshToken(string $refreshToken)
+    {
         $refreshTokenData = Jwt::verify($refreshToken);
+
+        if ($refreshTokenData['aud'] != 'refresh') {
+            throw new InvalidRefreshTokenException();
+        }
 
         if (is_null($this->getAuthIdentifier())) {
             $identity = $this->findOrFail($refreshTokenData['sub']);
