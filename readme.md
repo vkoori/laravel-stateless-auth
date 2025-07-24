@@ -133,3 +133,60 @@ php artisan cache:clear redis_jwt
 ```
 
 This is especially useful when `enable_revoke` is set to `true` in your config, ensuring users are logged out securely while preserving system-wide cache stability.
+
+### 🔐 JWT Scope Middleware
+
+This package includes a built-in `JwtScopeMiddleware` to restrict route access based on scopes defined in the JWT token payload.
+
+#### 🔧 Middleware Registration
+
+**✅ Laravel 12+**
+
+In Laravel 12+, middleware is registered using the `bootstrap/app.php`:
+
+```php
+    ->withMiddleware(function (Middleware $middleware): void {
+        $middleware
+            ->alias([
+                'jwt.scope' => \Vkoori\JwtAuth\Middlewares\JwtScopeMiddleware::class,
+            ]);
+    })
+```
+
+**🧱 Laravel 11 and below**
+
+If you're using Laravel 11 or older, register the middleware in `app/Http/Kernel.php`:
+
+```php
+protected $routeMiddleware = [
+    // ...
+    'jwt.scope' => \Vkoori\JwtAuth\Middlewares\JwtScopeMiddleware::class,
+];
+```
+
+#### ✅ Defining Scopes in Your JWT
+
+Make sure you include the `scope` claim when generating your access tokens. Example:
+
+```php
+$user->accessToken(scopes: ['admin', 'manager'])
+```
+
+#### 🔒 Protect Routes Using Scope Middleware
+
+You can pass multiple allowed scopes or single scope, and access will be granted if at least one matches:
+
+```php
+Route::middleware(['jwt.scope:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index']);
+});
+
+Route::middleware(['jwt.scope:admin,other'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index']);
+});
+```
+
+#### ⚠️ Error Handling
+
+- If the user is unauthenticated, a 401 Unauthorized will be thrown.
+- If the token lacks the required scopes, a 403 Forbidden (ScopeException) will be raised.
