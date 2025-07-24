@@ -8,8 +8,6 @@ use Illuminate\Support\Facades\Cache;
 
 trait JwtCacheTrait
 {
-    protected ?string $jwtCacheDriver = null;
-
     protected function getCacheAccessTokenKey(int $sub, string $jti)
     {
         return "jwt:access_token:{$sub}:{$jti}";
@@ -27,7 +25,7 @@ trait JwtCacheTrait
 
     protected function retrieveAccessTokensInCache(int $sub, string $jti)
     {
-        return Cache::driver($this->jwtCacheDriver)
+        return Cache::driver($this->getCacheDriver())
             ->tags([
                 $this->getAuthTag($sub)
             ])->get(
@@ -37,7 +35,7 @@ trait JwtCacheTrait
 
     protected function retrieveRefreshTokensInCache(int $sub, string $jti)
     {
-        return Cache::driver($this->jwtCacheDriver)
+        return Cache::driver($this->getCacheDriver())
             ->tags([
                 $this->getAuthTag($sub)
             ])->get(
@@ -49,7 +47,7 @@ trait JwtCacheTrait
     {
         $accessTokenData = Jwt::verify($accessToken);
 
-        Cache::driver($this->jwtCacheDriver)
+        Cache::driver($this->getCacheDriver())
             ->tags([
                 $this->getAuthTag($accessTokenData['sub']),
             ])->put(
@@ -63,7 +61,7 @@ trait JwtCacheTrait
     {
         $refreshTokenData = Jwt::verify($refreshToken);
 
-        Cache::driver($this->jwtCacheDriver)
+        Cache::driver($this->getCacheDriver())
             ->tags([
                 $this->getAuthTag($refreshTokenData['sub']),
             ])->put(
@@ -75,7 +73,7 @@ trait JwtCacheTrait
 
     protected function revokeAll(int $sub): void
     {
-        Cache::driver($this->jwtCacheDriver)
+        Cache::driver($this->getCacheDriver())
             ->tags([
                 $this->getAuthTag($sub)
             ])->flush();
@@ -83,17 +81,24 @@ trait JwtCacheTrait
 
     protected function revokeOne(int $sub, string $jti): void
     {
-        Cache::driver($this->jwtCacheDriver)
+        Cache::driver($this->getCacheDriver())
             ->tags([
                 $this->getAuthTag($sub)
             ])->forget(
                 $this->getCacheAccessTokenKey($sub, $jti)
             );
-        Cache::driver($this->jwtCacheDriver)
+        Cache::driver($this->getCacheDriver())
             ->tags([
                 $this->getAuthTag($sub)
             ])->forget(
                 $this->getCacheRefreshTokenKey($sub, $jti)
             );
+    }
+
+    private function getCacheDriver(): ?string
+    {
+        return property_exists($this, 'jwtCacheDriver') && $this->jwtCacheDriver
+            ? $this->jwtCacheDriver
+            : null;
     }
 }
