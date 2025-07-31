@@ -26,7 +26,7 @@ trait JwtParserTrait
         $config = config('jwt-guard.jwt.parser.refresh');
 
         return $request->cookies->get($config['cookie'])
-            ?? $request->request->get($config['header'])
-            ?? $request->request->get($config['body']);
+            ?? $request->headers->get($config['header'])
+            ?? $request->get($config['body']);
     }
 }
