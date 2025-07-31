@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\Guard;
 use Vkoori\JwtAuth\Auth\Traits\JwtParserTrait;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider as AuthProvider;
+use Vkoori\JwtAuth\Exceptions\InvalidAccessTokenException;
 
 class JwtAuthGuard implements Guard
 {
@@ -31,11 +32,15 @@ class JwtAuthGuard implements Guard
 
         $accessToken = $this->getAccess($this->request);
 
+        $authenticatable = null;
         if ($accessToken) {
-            $this->setAuthenticatable(
-                $this->authProvider->retrieveById(identifier: $accessToken)
-            );
+            try {
+                $authenticatable = $this->authProvider->retrieveById(identifier: $accessToken);
+            } catch (InvalidAccessTokenException $th) {
+                // noting
+            }
         }
+        $this->setAuthenticatable(authenticatable: $authenticatable);
 
         return !empty($this->authenticatable);
     }
