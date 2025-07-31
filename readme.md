@@ -117,7 +117,7 @@ class User extends Authenticatable
 {
     use HasApiTokens;
 
-    protected ?string $jwtCacheDriver = 'redis_jwt';
+    public ?string $jwtCacheDriver = 'redis_jwt';
 }
 ```
 
