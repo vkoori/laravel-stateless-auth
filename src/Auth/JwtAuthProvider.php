@@ -15,7 +15,16 @@ class JwtAuthProvider implements UserProvider
 {
     use JwtCacheTrait;
 
-    public function __construct(protected string $model) {}
+    protected Model $modelObject;
+    protected ?string $jwtCacheDriver = null;
+
+    public function __construct(string $model)
+    {
+        $this->modelObject = $this->createModel($model);
+        $this->jwtCacheDriver = property_exists($this->modelObject, 'jwtCacheDriver')
+            ? $this->modelObject->jwtCacheDriver
+            : null;
+    }
 
     /**
      * Retrieve a user by their unique identifier.
@@ -96,15 +105,15 @@ class JwtAuthProvider implements UserProvider
         throw new NotSupportedException();
     }
 
-    protected function createModel(): Model
+    protected function createModel(string $model): Model
     {
-        $class = '\\' . ltrim($this->model, '\\');
+        $class = '\\' . ltrim($model, '\\');
 
         return new $class();
     }
 
     protected function retrieveByQuery(string|int $userId): Authenticatable|null
     {
-        return $this->createModel()->newQuery()->find($userId);
+        return $this->modelObject->newQuery()->find($userId);
     }
 }
